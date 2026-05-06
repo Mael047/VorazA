@@ -25,13 +25,12 @@ public class PathfindingManager : MonoBehaviour
     {
         List<Node> neighbors = new List<Node>();
 
-        // ✅ CORREGIDO: ahora es int[][]
         int[][] directions = new int[][]
         {
-            new int[] {1, 0},
-            new int[] {-1, 0},
-            new int[] {0, 1},
-            new int[] {0, -1}
+        new int[] {1, 0},
+        new int[] {-1, 0},
+        new int[] {0, 1},
+        new int[] {0, -1}
         };
 
         foreach (var dir in directions)
@@ -39,14 +38,14 @@ public class PathfindingManager : MonoBehaviour
             int newX = node.x + dir[0];
             int newY = node.y + dir[1];
 
-            if (newX >= 0 && newY >= 0 &&
-                newX < gridManager.rows &&
-                newY < gridManager.cols)
+            // 🔥 CAMBIO IMPORTANTE
+            if (newX >= 0 && newX < gridManager.grid.GetLength(0) &&
+                newY >= 0 && newY < gridManager.grid.GetLength(1))
             {
                 Cell cell = gridManager.grid[newX, newY];
 
                 if (!cell.isObstacle)
-                    neighbors.Add(new Node(newX, newY));
+                    neighbors.Add(gridManager.nodes[newX, newY]);
             }
         }
 
@@ -76,8 +75,8 @@ public class PathfindingManager : MonoBehaviour
 
             foreach (Node neighbor in GetNeighbors(current))
             {
-                // ✅ CORREGIDO: comparación por coordenadas
-                if (closed.Any(n => n.x == neighbor.x && n.y == neighbor.y))
+                if (closed.Any(n => n.x == neighbor.x && n.y == neighbor.y) ||
+                    open.Any(n => n.x == neighbor.x && n.y == neighbor.y))
                     continue;
                 gridManager.grid[neighbor.x, neighbor.y].SetColor(Color.yellow);
                 neighbor.hCost = Heuristic(neighbor, goal);
@@ -120,16 +119,18 @@ public class PathfindingManager : MonoBehaviour
 
                 Node existing = open.FirstOrDefault(n => n.x == neighbor.x && n.y == neighbor.y);
 
-                if (existing == null || newCost < existing.gCost)
+                if (existing == null)
                 {
                     neighbor.gCost = newCost;
                     neighbor.hCost = Heuristic(neighbor, goal);
                     neighbor.parent = current;
 
-
-
-                    if (existing == null)
-                        open.Add(neighbor);
+                    open.Add(neighbor);
+                }
+                else if (newCost < existing.gCost)
+                {
+                    existing.gCost = newCost;
+                    existing.parent = current;
                 }
             }
         }
@@ -178,14 +179,19 @@ public class PathfindingManager : MonoBehaviour
     // -------------------------
     public void Solve(bool useAStar)
     {
+        // 👇 LIMPIA ANTES DE TODO
+     
+        gridManager.ClearPathVisuals();
+        gridManager.ResetNodes();
+
         if (startCell == null || goalCell == null)
         {
             Debug.LogError("Falta definir inicio o destino");
             return;
         }
 
-        Node start = new Node(startCell.x, startCell.y);
-        Node goal = new Node(goalCell.x, goalCell.y);
+        Node start = gridManager.nodes[startCell.x, startCell.y];
+        Node goal = gridManager.nodes[goalCell.x, goalCell.y];
 
         Node result;
 
@@ -211,18 +217,26 @@ public class PathfindingManager : MonoBehaviour
     public void SetStart(Cell cell)
     {
         if (startCell != null)
+        {
+            startCell.isStart = false;
             startCell.SetColor(Color.white);
+        }
 
         startCell = cell;
+        startCell.isStart = true;
         startCell.SetColor(Color.green);
     }
 
     public void SetGoal(Cell cell)
     {
         if (goalCell != null)
+        {
+            goalCell.isGoal = false;
             goalCell.SetColor(Color.white);
+        }
 
         goalCell = cell;
+        goalCell.isGoal = true;
         goalCell.SetColor(Color.red);
     }
 

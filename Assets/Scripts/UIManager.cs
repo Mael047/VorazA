@@ -7,6 +7,11 @@ public class UIManager : MonoBehaviour
     public TMP_Dropdown dropdown;
     public TMP_Text infoText;
 
+    public void Start()
+    {
+        infoText.text = "Selecciona el metodo de busqueda y modifica el grid.";
+    }
+
     public void Solve()
     {
         bool useAStar = dropdown.value == 1;

@@ -66,8 +66,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -5666552777093224069, guid: 7c08d3a2b40d3e549b89b5817e815dbb, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -89,9 +89,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cell
   editor: {fileID: 0}
-  img: {fileID: 1107113411981085874}
   x: 0
   y: 0
   isObstacle: 0
   isStart: 0
   isGoal: 0
+  img: {fileID: 1107113411981085874}
